@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Pong Game Starter
 
 A starter project for a basic pong game using SVGs.
@@ -39,3 +40,6 @@ Once you have done this, you can run:
 `$ npm run deploy`
 
 Now check out your deployed site 🙂
+=======
+# Pong
+>>>>>>> 9c5c7d3b053de2b8b3067e862c8ebd537ec3068a
