@@ -189,13 +189,266 @@ var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
-},{"./../../public/fonts/slkscr-webfont.eot":[["slkscr-webfont.ffa4090f.eot","public/fonts/slkscr-webfont.eot"],"public/fonts/slkscr-webfont.eot"],"./../../public/fonts/slkscr-webfont.woff":[["slkscr-webfont.1e0cef22.woff","public/fonts/slkscr-webfont.woff"],"public/fonts/slkscr-webfont.woff"],"./../../public/fonts/slkscr-webfont.ttf":[["slkscr-webfont.e002edc4.ttf","public/fonts/slkscr-webfont.ttf"],"public/fonts/slkscr-webfont.ttf"],"./../../public/fonts/slkscr-webfont.svg":[["slkscr-webfont.16d40719.svg","public/fonts/slkscr-webfont.svg"],"public/fonts/slkscr-webfont.svg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/partials/Game.js":[function(require,module,exports) {
+},{"./../../public/fonts/slkscr-webfont.eot":[["slkscr-webfont.ffa4090f.eot","public/fonts/slkscr-webfont.eot"],"public/fonts/slkscr-webfont.eot"],"./../../public/fonts/slkscr-webfont.woff":[["slkscr-webfont.1e0cef22.woff","public/fonts/slkscr-webfont.woff"],"public/fonts/slkscr-webfont.woff"],"./../../public/fonts/slkscr-webfont.ttf":[["slkscr-webfont.e002edc4.ttf","public/fonts/slkscr-webfont.ttf"],"public/fonts/slkscr-webfont.ttf"],"./../../public/fonts/slkscr-webfont.svg":[["slkscr-webfont.16d40719.svg","public/fonts/slkscr-webfont.svg"],"public/fonts/slkscr-webfont.svg"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/settings.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.SVG_NS = exports.KEYS = void 0;
+var KEYS = {
+  a: "a",
+  // player 1 up key
+  z: "z",
+  // player 1 down key
+  up: "ArrowUp",
+  // player 2 up key
+  down: "ArrowDown",
+  // player 2 down key
+  spaceBar: " " // we'll use this later...
+
+};
+exports.KEYS = KEYS;
+var SVG_NS = "http://www.w3.org/2000/svg";
+exports.SVG_NS = SVG_NS;
+},{}],"src/partials/board.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+
+var _settings = require("../settings");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Board =
+/*#__PURE__*/
+function () {
+  function Board(width, height, className) {
+    _classCallCheck(this, Board);
+
+    this.width = width;
+    this.height = height;
+    this.className = className;
+  }
+
+  _createClass(Board, [{
+    key: "render",
+    value: function render(svg) {
+      var rect = document.createElementNS(_settings.SVG_NS, "rect");
+      rect.setAttributeNS(null, "class", this.className);
+      rect.setAttributeNS(null, "width", this.width);
+      rect.setAttributeNS(null, "height", this.height);
+      var line = document.createElementNS(_settings.SVG_NS, "line");
+      line.setAttributeNS(null, "x1", this.width / 2);
+      line.setAttributeNS(null, "x2", this.width / 2);
+      line.setAttributeNS(null, "y1", 0);
+      line.setAttributeNS(null, "y2", this.height);
+      line.setAttributeNS(null, "stroke", "white");
+      line.setAttributeNS(null, "stroke-dasharray", "20");
+      line.setAttributeNS(null, "stroke-width", "4");
+      svg.appendChild(rect);
+      svg.appendChild(line);
+    }
+  }]);
+
+  return Board;
+}();
+
+exports.default = Board;
+},{"../settings":"src/settings.js"}],"src/partials/paddle.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _settings = require("../settings");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var deltaTime = 1 / 60;
+
+var Paddle =
+/*#__PURE__*/
+function () {
+  function Paddle(boardHeight, width, height, x, y, upKey, downKey) {
+    var _this = this;
+
+    _classCallCheck(this, Paddle);
+
+    this.boardHeight = boardHeight;
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;
+    this.speed = 0;
+    this.score = 0;
+    this.upKey = upKey;
+    this.downKey = downKey;
+    var force = 1;
+    document.addEventListener("keydown", function (event) {
+      switch (event.key) {
+        case upKey:
+          console.log(_this);
+
+          _this.move(-force);
+
+          break;
+
+        case downKey:
+          console.log(_this);
+
+          _this.move(force);
+
+      }
+    });
+  }
+
+  _createClass(Paddle, [{
+    key: "render",
+    value: function render(svg) {
+      var rect = document.createElementNS(_settings.SVG_NS, "rect");
+      rect.setAttributeNS(null, "class", this.className);
+      rect.setAttributeNS(null, "width", this.width);
+      rect.setAttributeNS(null, "height", this.height);
+      rect.setAttributeNS(null, "x", this.x);
+      rect.setAttributeNS(null, "y", this.y);
+      rect.setAttributeNS(null, "speed", this.speed);
+      rect.setAttributeNS(null, "score", this.score);
+      rect.setAttributeNS(null, "fill", "white");
+      svg.appendChild(rect);
+    }
+  }, {
+    key: "move",
+    value: function move(force) {
+      this.speed += force;
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      this.y += this.speed;
+      this.slowToZero();
+      this.checkBorderCollisions();
+    }
+  }, {
+    key: "slowToZero",
+    value: function slowToZero() {
+      if (this.speed > 0) {
+        this.speed -= 0.01;
+      } else if (this.speed < 0) {
+        this.speed += 0.01;
+      }
+    }
+  }, {
+    key: "checkBorderCollisions",
+    value: function checkBorderCollisions() {
+      if (this.y <= 0 || this.y >= this.boardHeight - this.height) {
+        this.speed = -this.speed;
+      }
+    }
+  }]);
+
+  return Paddle;
+}();
+
+exports.default = Paddle;
+},{"../settings":"src/settings.js"}],"src/partials/ball.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _settings = require("../settings");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Ball =
+/*#__PURE__*/
+function () {
+  function Ball(radius, boardLength, boardHeight, className, velocity) {
+    _classCallCheck(this, Ball);
+
+    this.radius = radius;
+    this.boardLength = boardLength;
+    this.boardHeight = boardHeight;
+    this.direction = 1;
+    this.className = className;
+    this.x = boardLength / 2;
+    this.y = boardHeight / 2;
+    this.velocity = velocity;
+  }
+
+  _createClass(Ball, [{
+    key: "render",
+    value: function render(svg) {
+      var circle = document.createElementNS(_settings.SVG_NS, "circle");
+      circle.setAttributeNS(null, "class", this.className);
+      circle.setAttributeNS(null, "r", this.radius);
+      circle.setAttributeNS(null, "cx", this.x);
+      circle.setAttributeNS(null, "cy", this.y);
+      circle.setAttributeNS(null, "fill", "white");
+      svg.appendChild(circle);
+    }
+  }, {
+    key: "move",
+    value: function move() {
+      this.x += this.velocity[0];
+      this.y += this.velocity[1];
+
+      if (this.y == this.boardHeight - this.radius || this.y == 0 + this.radius) {
+        this.velocity[1] = -this.velocity[1];
+      }
+
+      if (this.x == this.boardLength - this.radius || this.x == this.boardLength - this.radius) {
+        this.velocity[0] = -this.velocity[0];
+      }
+    }
+  }, {
+    key: "bounce",
+    value: function bounce() {
+      this.velocity[0] = -this.velocity[0];
+    }
+  }]);
+
+  return Ball;
+}();
+
+exports.default = Ball;
+},{"../settings":"src/settings.js"}],"src/partials/Game.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _board = _interopRequireDefault(require("./board"));
+
+var _settings = require("../settings");
+
+var _paddle = _interopRequireDefault(require("./paddle"));
+
+var _ball = _interopRequireDefault(require("./ball"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -212,140 +465,86 @@ function () {
     this.element = element;
     this.width = width;
     this.height = height;
+    var boardHeight = this.height;
+    var boardLength = this.width;
+    var paddleHeight = 64;
+    var paddleWidth = 8;
+    var paddlePadding = 30;
+    var paddleSpeed = 10;
+    var boardClassName = "board";
+    var ballRadius = 8;
+    var ballVelocity = [4, 4];
+    var ballClassName = "ball";
+    var p1Up = _settings.KEYS.a;
+    var p1Down = _settings.KEYS.z;
+    var p2Up = _settings.KEYS.up;
+    var p2Down = _settings.KEYS.down;
+    this.gameElement = document.getElementById(this.element);
+    this.board = new _board.default(boardLength, boardHeight, boardClassName);
+    this.paddle1 = new _paddle.default(boardHeight, paddleWidth, paddleHeight, paddlePadding, boardHeight / 2, p1Up, p1Down);
+    this.paddle2 = new _paddle.default(boardHeight, paddleWidth, paddleHeight, boardLength - paddlePadding - paddleWidth / 2, boardHeight / 2, p2Up, p2Down);
+    this.ball = new _ball.default(ballRadius, boardLength, boardHeight, ballClassName, ballVelocity);
   }
 
   _createClass(Game, [{
     key: "render",
-    value: function render() {}
+    value: function render() {
+      this.gameElement.innerHTML = "";
+      var svg = document.createElementNS(_settings.SVG_NS, "svg");
+      svg.setAttributeNS(null, "width", this.width);
+      svg.setAttributeNS(null, "height", this.height);
+      svg.setAttributeNS(null, "viewBox", "0 0 ".concat(this.width, " ").concat(this.height));
+      this.gameElement.appendChild(svg);
+      this.board.render(svg);
+      this.paddle1.render(svg);
+      this.paddle2.render(svg);
+      this.ball.render(svg);
+      this.ball.move();
+      this.paddle1.update();
+      this.paddle2.update();
+      this.checkCollisions();
+    }
+  }, {
+    key: "checkCollisions",
+    value: function checkCollisions() {
+      console.log();
+
+      if (this.ball.x - this.paddle1.x < this.paddle1.width / 2 + this.ball.radius) {
+        if (this.paddle1.y - this.ball.y < this.paddle1.height / 2 + this.ball.radius) {
+          this.ball.bounce();
+        }
+      }
+
+      if (this.paddle2.x - this.ball.x - this.ball.radius < this.paddle2.width / 2) {
+        if (Math.abs(this.paddle2.y - this.ball.y) < this.paddle2.height / 2 + this.ball.radius) {
+          this.ball.bounce();
+        }
+      }
+    }
   }]);
 
   return Game;
 }();
 
 exports.default = Game;
-},{}],"src/partials/board.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-var Board =
-/*#__PURE__*/
-function () {
-  function Board(width, height) {
-    _classCallCheck(this, Board);
-
-    this.width = width;
-    this.height = height;
-  }
-
-  _createClass(Board, [{
-    key: "render",
-    value: function render() {
-      document.createElement("rect");
-      document.createElement("line");
-    }
-  }]);
-
-  return Board;
-}();
-
-exports.default = Board;
-},{}],"src/settings.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SVG_NS = exports.KEYS = void 0;
-var KEYS = {
-  a: 65,
-  // player 1 up key
-  z: 90,
-  // player 1 down key
-  up: 38,
-  // player 2 up key
-  down: 40,
-  // player 2 down key
-  spaceBar: 32 // we'll use this later...
-
-};
-exports.KEYS = KEYS;
-var SVG_NS = "http://www.w3.org/2000/svg";
-exports.SVG_NS = SVG_NS;
-},{}],"src/partials/paddle.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _settings = require("../settings");
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Paddle = function Paddle(boardHeight, width, height, x, y) {
-  _classCallCheck(this, Paddle);
-
-  this.boardHeight = boardHeight;
-  this.width = width;
-  this.height = height;
-  this.x = x;
-  this.y = y;
-  this.speed = 10;
-  this.score = 0;
-  document.addEventListener("keydown", function (event) {
-    switch (event.key) {
-      case _settings.KEYS.up:
-        console.log("up");
-        break;
-
-      case _settings.KEYS.down:
-        console.log("down");
-        break;
-    }
-  });
-} //...
-;
-
-exports.default = Paddle;
-},{"../settings":"src/settings.js"}],"src/index.js":[function(require,module,exports) {
+},{"./board":"src/partials/board.js","../settings":"src/settings.js","./paddle":"src/partials/paddle.js","./ball":"src/partials/ball.js"}],"src/index.js":[function(require,module,exports) {
 "use strict";
 
 require("./styles/game.css");
 
 var _Game = _interopRequireDefault(require("./partials/Game"));
 
-var _board = _interopRequireDefault(require("./partials/board"));
-
-var _paddle = _interopRequireDefault(require("./partials/paddle"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var boardHeight = 256;
-var boardLength = 512;
-var paddleHeight = 8;
-var paddleWidth = 2; // create a game instance
-
-var game = new _Game.default("game", boardLength, boardHeight);
-var board = new _board.default(boardLength, boardHeight);
-var paddle1 = new _paddle.default(boardHeight, paddleHeight, paddleWidth);
-var paddle2 = new _paddle.default(boardHeight, paddleHeight, paddleWidth);
+// create a game instance
+var game = new _Game.default("game", 800, 400); //const paddle1 = new Paddle(256, 56, 8);
+//const paddle2 = new Paddle(256, 56, 8);
 
 (function gameLoop() {
   game.render();
   requestAnimationFrame(gameLoop);
 })();
-},{"./styles/game.css":"src/styles/game.css","./partials/Game":"src/partials/Game.js","./partials/board":"src/partials/board.js","./partials/paddle":"src/partials/paddle.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./styles/game.css":"src/styles/game.css","./partials/Game":"src/partials/Game.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -373,7 +572,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51702" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64734" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
