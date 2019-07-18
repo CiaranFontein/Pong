@@ -76,25 +76,19 @@ export default class Game {
   }
 
   checkCollisions() {
-    console.log();
     if (
-      this.ball.x - this.paddle1.x <
-      this.paddle1.width / 2 + this.ball.radius
+      this.checkPaddleCollision(this.ball, this.paddle1) ||
+      this.checkPaddleCollision(this.ball, this.paddle2)
     ) {
-      if (
-        this.paddle1.y - this.ball.y <
-        this.paddle1.height / 2 + this.ball.radius
-      ) {
-        this.ball.bounce();
-      }
+      this.ball.bounce();
     }
-    if (
-      this.paddle2.x - this.ball.x - this.ball.radius <
-      this.paddle2.width / 2
-    ) {
+  }
+
+  checkPaddleCollision(object1, object2) {
+    if (Math.abs(object1.x - object2.x) <= object1.radius + object2.width / 2) {
       if (
-        Math.abs(this.paddle2.y - this.ball.y) <
-        this.paddle2.height / 2 + this.ball.radius
+        Math.abs(object1.y - object2.y) < object2.height / 2 + object1.radius &&
+        Math.abs(object1.y - object2.y) < object2.height / 2 + object1.radius
       ) {
         this.ball.bounce();
       }

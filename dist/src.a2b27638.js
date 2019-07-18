@@ -301,15 +301,11 @@ function () {
     document.addEventListener("keydown", function (event) {
       switch (event.key) {
         case upKey:
-          console.log(_this);
-
           _this.move(-force);
 
           break;
 
         case downKey:
-          console.log(_this);
-
           _this.move(force);
 
       }
@@ -417,14 +413,19 @@ function () {
         this.velocity[1] = -this.velocity[1];
       }
 
-      if (this.x == this.boardLength - this.radius || this.x == this.boardLength - this.radius) {
-        this.velocity[0] = -this.velocity[0];
+      if (this.x <= 0 || this.x >= this.boardLength) {
+        console.log("POINT");
+        this.bounce();
       }
     }
   }, {
     key: "bounce",
     value: function bounce() {
       this.velocity[0] = -this.velocity[0];
+
+      if (this.velocity[0] > 0) {
+        this.velocity[0] += 1;
+      }
     }
   }]);
 
@@ -507,16 +508,15 @@ function () {
   }, {
     key: "checkCollisions",
     value: function checkCollisions() {
-      console.log();
-
-      if (this.ball.x - this.paddle1.x < this.paddle1.width / 2 + this.ball.radius) {
-        if (this.paddle1.y - this.ball.y < this.paddle1.height / 2 + this.ball.radius) {
-          this.ball.bounce();
-        }
+      if (this.checkPaddleCollision(this.ball, this.paddle1) || this.checkPaddleCollision(this.ball, this.paddle2)) {
+        this.ball.bounce();
       }
-
-      if (this.paddle2.x - this.ball.x - this.ball.radius < this.paddle2.width / 2) {
-        if (Math.abs(this.paddle2.y - this.ball.y) < this.paddle2.height / 2 + this.ball.radius) {
+    }
+  }, {
+    key: "checkPaddleCollision",
+    value: function checkPaddleCollision(object1, object2) {
+      if (Math.abs(object1.x - object2.x) <= object1.radius + object2.width / 2) {
+        if (Math.abs(object1.y - object2.y) < object2.height / 2 + object1.radius && Math.abs(object1.y - object2.y) < object2.height / 2 + object1.radius) {
           this.ball.bounce();
         }
       }
@@ -572,7 +572,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64734" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50214" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

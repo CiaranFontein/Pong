@@ -30,15 +30,16 @@ export default class Ball {
       this.velocity[1] = -this.velocity[1];
     }
 
-    if (
-      this.x == this.boardLength - this.radius ||
-      this.x == this.boardLength - this.radius
-    ) {
-      this.velocity[0] = -this.velocity[0];
+    if (this.x <= 0 || this.x >= this.boardLength) {
+      console.log("POINT");
+      this.bounce();
     }
   }
 
   bounce() {
     this.velocity[0] = -this.velocity[0];
+    if (this.velocity[0] > 0) {
+      this.velocity[0] += 1;
+    }
   }
 }

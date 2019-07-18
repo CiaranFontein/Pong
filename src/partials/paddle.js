@@ -19,11 +19,9 @@ export default class Paddle {
     document.addEventListener("keydown", event => {
       switch (event.key) {
         case upKey:
-          console.log(this);
           this.move(-force);
           break;
         case downKey:
-          console.log(this);
           this.move(force);
       }
     });
