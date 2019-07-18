@@ -3,11 +3,7 @@ export default class Game {
     this.element = element;
     this.width = width;
     this.height = height;
-
-		// Other code goes here...
   }
 
-  render() {
-		// More code goes here....
-  }
+  render() {}
 }
