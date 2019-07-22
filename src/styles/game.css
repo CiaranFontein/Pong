@@ -1,88 +1,83 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
-   v2.0 | 20110126
-   License: none (public domain)
-*/
-
-html,
-body,
-div,
-span,
+a,
+abbr,
+acronym,
+address,
 applet,
-object,
-iframe,
+article,
+aside,
+audio,
+b,
+big,
+blockquote,
+body,
+canvas,
+caption,
+center,
+cite,
+code,
+dd,
+del,
+details,
+dfn,
+div,
+dl,
+dt,
+em,
+embed,
+fieldset,
+figcaption,
+figure,
+footer,
+form,
 h1,
 h2,
 h3,
 h4,
 h5,
 h6,
-p,
-blockquote,
-pre,
-a,
-abbr,
-acronym,
-address,
-big,
-cite,
-code,
-del,
-dfn,
-em,
+header,
+hgroup,
+html,
+i,
+iframe,
 img,
 ins,
 kbd,
+label,
+legend,
+li,
+mark,
+menu,
+nav,
+object,
+ol,
+output,
+p,
+pre,
 q,
+ruby,
 s,
 samp,
+section,
 small,
+span,
 strike,
 strong,
 sub,
-sup,
-tt,
-var,
-b,
-u,
-i,
-center,
-dl,
-dt,
-dd,
-ol,
-ul,
-li,
-fieldset,
-form,
-label,
-legend,
-table,
-caption,
-tbody,
-tfoot,
-thead,
-tr,
-th,
-td,
-article,
-aside,
-canvas,
-details,
-embed,
-figure,
-figcaption,
-footer,
-header,
-hgroup,
-menu,
-nav,
-output,
-ruby,
-section,
 summary,
+sup,
+table,
+tbody,
+td,
+tfoot,
+th,
+thead,
 time,
-mark,
-audio,
+tr,
+tt,
+u,
+ul,
+var,
 video {
   margin: 0;
   padding: 0;
@@ -91,7 +86,6 @@ video {
   font: inherit;
   vertical-align: baseline;
 }
-/* HTML5 display-role reset for older browsers */
 article,
 aside,
 details,
@@ -116,10 +110,10 @@ blockquote,
 q {
   quotes: none;
 }
-blockquote:before,
 blockquote:after,
-q:before,
-q:after {
+blockquote:before,
+q:after,
+q:before {
   content: "";
   content: none;
 }
@@ -127,31 +121,20 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
-
-/**
- * FONTS
- */
-
 @font-face {
   font-family: "Silkscreen Web";
-  src: url("../../public/fonts/slkscr-webfont.eot");
-  src: url("../../public/fonts/slkscr-webfont.eot?#iefix")
+  src: url(../../public/fonts/slkscr-webfont.eot);
+  src: url(../../public/fonts/slkscr-webfont.eot?#iefix)
       format("embedded-opentype"),
-    url("../../public/fonts/slkscr-webfont.woff") format("woff"),
-    url("../../public/fonts/slkscr-webfont.ttf") format("truetype"),
-    url("../../public/fonts/slkscr-webfont.svg#silkscreennormal") format("svg");
-  font-weight: normal;
+    url(../../public/fonts/slkscr-webfont.woff) format("woff"),
+    url(../../public/fonts/slkscr-webfont.ttf) format("truetype"),
+    url(../../public/fonts/slkscr-webfont.svg#silkscreennormal) format("svg");
+  font-weight: 400;
   font-style: normal;
 }
-
-/**
- * GAME
- */
-
 html {
   font-size: 16px;
 }
-
 body {
   align-items: center;
   display: flex;
@@ -161,60 +144,57 @@ body {
   width: 100%;
   background: linear-gradient(140deg, #1d725c, #a1bd2f, #6112ae, #1298ae);
   background-size: 400% 400%;
-
   -webkit-animation: gradientAnimation 1s ease infinite;
   -moz-animation: gradientAnimation 1s ease infinite;
   -o-animation: gradientAnimation 1s ease infinite;
   animation: gradientAnimation 1s ease infinite;
 }
-
 h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   text-align: center;
 }
-
 @-webkit-keyframes gradientAnimation {
   0% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
   50% {
     background-position: 100% 100%;
   }
   100% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
 }
 @-moz-keyframes gradientAnimation {
   0% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
   50% {
     background-position: 100% 50%;
   }
   100% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
 }
 @-o-keyframes gradientAnimation {
   0% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
   50% {
     background-position: 50% 50%;
   }
   100% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
 }
 @keyframes gradientAnimation {
   0% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
   50% {
     background-position: 100% 100%;
   }
   100% {
-    background-position: 0% 0%;
+    background-position: 0 0;
   }
 }

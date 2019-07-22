@@ -502,6 +502,7 @@ function () {
 
     this.trail = new _trail.default(30);
     this.ping = new Audio(_smack.default);
+    this.direction = 1;
     this.reset();
   }
 
@@ -589,7 +590,6 @@ function () {
   }, {
     key: "applySpin",
     value: function applySpin(paddleSpeed) {
-      console.log("Applying Spin: " + this.paddleSpeed);
       this.spinSpeed += paddleSpeed;
     } //Changes the direction the ball is going based on the spinSpeed
 
@@ -603,7 +603,7 @@ function () {
   }, {
     key: "reset",
     value: function reset() {
-      this.theta = Math.random() * Math.PI;
+      this.theta = this.direction * Math.random() * (Math.PI / 2) + Math.PI / 2;
       this.speed = this.startingSpeed;
       this.spinSpeed = 0;
       this.x = this.boardLength / 2;
@@ -612,6 +612,7 @@ function () {
   }, {
     key: "goal",
     value: function goal(player) {
+      this.direction *= -1;
       this.reset();
       player.score++;
     }
@@ -806,7 +807,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51530" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51271" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
