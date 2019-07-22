@@ -54,7 +54,6 @@ class TrailBall {
     this.y = y;
     this.radius = radius;
     this.velocity = velocity;
-    this.acceleration = -0.01;
   }
 
   move() {
