@@ -33,7 +33,7 @@ export default class Trail {
   //Makes the trail shorter at the end
   shrinkBalls(balls) {
     for (var j = balls.length - 1; j > 0; j--) {
-      balls[j].radius = (j / this.length) * 10;
+      balls[j].radius -= j * 0.0005;
       if (balls[j].radius < 0) {
         balls[j].radius = 0;
       }

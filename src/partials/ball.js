@@ -17,10 +17,10 @@ export default class Ball {
     this.yFlipped = 1;
 
     this.spinSpeed = 0;
-    this.accelerationSpeed = 0.1;
+    this.accelerationSpeed = 0.3;
 
     //Pass in the number of circles used to make the trail
-    this.trail = new Trail(30);
+    this.trail = new Trail(200);
     this.ping = new Audio(pingSound);
     this.direction = 1;
     this.reset();
@@ -111,6 +111,7 @@ export default class Ball {
 
   //Adds spinSpeed to the ball based on speed of paddle on impact
   applySpin(paddleSpeed) {
+    this.theta %= Math.PI;
     this.spinSpeed += paddleSpeed;
   }
 
@@ -122,7 +123,18 @@ export default class Ball {
 
   //Resets ball to the center
   reset() {
-    this.theta = this.direction * Math.random() * (Math.PI / 2) + Math.PI / 2;
+    this.theta = Math.random() * Math.PI;
+    console.log(this.theta);
+    if (this.theta > Math.PI / 4 && this.theta < (3 * Math.PI) / 4) {
+      this.theta += Math.PI / 2;
+      console.log("new theta: " + this.theta);
+    } else if (
+      this.theta > (5 * Math.PI) / 4 &&
+      this.theta < (7 * Math.PI) / 4
+    ) {
+      this.theta += Math.PI / 2;
+      console.log("new theta: " + this.theta);
+    }
     this.speed = this.startingSpeed;
     this.spinSpeed = 0;
     this.x = this.boardLength / 2;

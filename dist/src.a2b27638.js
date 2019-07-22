@@ -438,7 +438,7 @@ function () {
     key: "shrinkBalls",
     value: function shrinkBalls(balls) {
       for (var j = balls.length - 1; j > 0; j--) {
-        balls[j].radius = j / this.length * 10;
+        balls[j].radius -= j * 0.0005;
 
         if (balls[j].radius < 0) {
           balls[j].radius = 0;
@@ -498,9 +498,9 @@ function () {
     this.xFlipped = 1;
     this.yFlipped = 1;
     this.spinSpeed = 0;
-    this.accelerationSpeed = 0.1; //Pass in the number of circles used to make the trail
+    this.accelerationSpeed = 0.3; //Pass in the number of circles used to make the trail
 
-    this.trail = new _trail.default(30);
+    this.trail = new _trail.default(200);
     this.ping = new Audio(_smack.default);
     this.direction = 1;
     this.reset();
@@ -590,6 +590,7 @@ function () {
   }, {
     key: "applySpin",
     value: function applySpin(paddleSpeed) {
+      this.theta %= Math.PI;
       this.spinSpeed += paddleSpeed;
     } //Changes the direction the ball is going based on the spinSpeed
 
@@ -603,7 +604,17 @@ function () {
   }, {
     key: "reset",
     value: function reset() {
-      this.theta = this.direction * Math.random() * (Math.PI / 2) + Math.PI / 2;
+      this.theta = Math.random() * Math.PI;
+      console.log(this.theta);
+
+      if (this.theta > Math.PI / 4 && this.theta < 3 * Math.PI / 4) {
+        this.theta += Math.PI / 2;
+        console.log("new theta: " + this.theta);
+      } else if (this.theta > 5 * Math.PI / 4 && this.theta < 7 * Math.PI / 4) {
+        this.theta += Math.PI / 2;
+        console.log("new theta: " + this.theta);
+      }
+
       this.speed = this.startingSpeed;
       this.spinSpeed = 0;
       this.x = this.boardLength / 2;
@@ -768,8 +779,6 @@ require("./styles/game.css");
 
 var _Game = _interopRequireDefault(require("./partials/Game"));
 
-var _settings = require("./settings");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // create a game instance
@@ -779,7 +788,7 @@ var game = new _Game.default("game", 800, 400);
   game.render();
   requestAnimationFrame(gameLoop);
 })();
-},{"./styles/game.css":"src/styles/game.css","./partials/Game":"src/partials/Game.js","./settings":"src/settings.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./styles/game.css":"src/styles/game.css","./partials/Game":"src/partials/Game.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -807,7 +816,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51271" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60550" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
