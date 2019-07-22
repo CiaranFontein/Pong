@@ -11,12 +11,14 @@ export default class Ball {
     this.speed = Math.sqrt(
       this.velocity[0] * this.velocity[0] + this.velocity[1] * this.velocity[1]
     );
-    console.log("Start Ball Speed: ", this.speed);
+    this.startingSpeed = this.speed;
     this.theta = 0;
     this.xFlipped = 1;
     this.yFlipped = 1;
 
     this.spinSpeed = 0;
+    this.accelerationSpeed = 0.1;
+    //Pass in the number of circles used to make the trail
     this.trail = new Trail(30);
     this.ping = new Audio(pingSound);
     this.reset();
@@ -57,6 +59,10 @@ export default class Ball {
     this.y += this.velocity[1];
   }
 
+  accelerate() {
+    this.speed += this.accelerationSpeed;
+  }
+
   wallCollision() {
     const hitTop = this.y - this.radius <= 0;
     const hitBottom = this.y + this.radius >= this.boardHeight;
@@ -67,7 +73,7 @@ export default class Ball {
   }
 
   paddleCollision(player1, player2) {
-    // collision detection for right paddle
+    //Collision detection for right paddle
     if (
       this.x + this.radius >= player2.x &&
       this.x + this.radius <= player2.x + player2.width
@@ -79,7 +85,7 @@ export default class Ball {
         this.applySpin(player2.speed);
       }
     }
-    // moving left
+    //Collision detection for left paddle
     if (
       this.x - this.radius <= player1.x + player1.width &&
       this.x - this.radius >= player1.x &&
@@ -113,7 +119,11 @@ export default class Ball {
     this.applyRotationalFrictionToZero();
   }
 
+  //Resets ball to the center
   reset() {
+    this.theta = Math.random() * Math.PI;
+    this.speed = this.startingSpeed;
+    this.spinSpeed = 0;
     this.x = this.boardLength / 2;
     this.y = this.boardHeight / 2;
   }

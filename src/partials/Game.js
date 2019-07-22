@@ -11,7 +11,6 @@ const paddlePadding = 30;
 const boardClassName = "board";
 const ballRadius = 8;
 const ballVelocity = [5, 2];
-const ballClassName = "ball";
 const p1Up = KEYS.a;
 const p1Down = KEYS.z;
 const p2Up = KEYS.up;

@@ -1,6 +1,6 @@
 {
   "name": "pong-svg",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "An SVG Pong game.",
   "license": "ISC",
   "author": "Ciaran Fontein <ciaranfontein@gmail.com>",

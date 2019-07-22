@@ -1,5 +1,4 @@
 import { SVG_NS } from "../settings";
-import Ball from "./ball";
 
 export default class Trail {
   constructor(length) {
@@ -8,12 +7,12 @@ export default class Trail {
   }
 
   render(svg, ball) {
-    this.balls.push(new TrailBall(ball.x, ball.y, ball.radius, 1));
+    //Creates new TrailBall at location of ball
+    this.balls.push(new TrailBall(ball.x, ball.y, ball.radius));
     if (this.balls.length > this.length) {
-      this.balls.shift();
+      this.balls.shift(); //shift removes first element
     }
 
-    console.log(this.balls.length);
     this.shrinkBalls(this.balls);
     for (var i = 0; i < this.length; i++) {
       if (this.balls[i]) {
@@ -28,7 +27,6 @@ export default class Trail {
     circle.setAttributeNS(null, "cx", ball.x);
     circle.setAttributeNS(null, "cy", ball.y);
     circle.setAttributeNS(null, "fill", "red");
-    circle.setAttributeNS(null, "fill-opacity", ball.opacity);
     svg.appendChild(circle);
   }
 
@@ -38,17 +36,16 @@ export default class Trail {
       balls[j].radius = (j / this.length) * 10;
       if (balls[j].radius < 0) {
         balls[j].radius = 0;
-        balls[j].opacity = 0.01;
       }
     }
   }
 }
 
+//Was creating Balls from ball class but they hurt the framerate too much and had velocities
 class TrailBall {
-  constructor(x, y, radius, opacity) {
+  constructor(x, y, radius) {
     this.x = x;
     this.y = y;
     this.radius = radius;
-    this.opacity = opacity;
   }
 }

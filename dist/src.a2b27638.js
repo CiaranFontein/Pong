@@ -389,10 +389,6 @@ exports.default = void 0;
 
 var _settings = require("../settings");
 
-var _ball = _interopRequireDefault(require("./ball"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -412,13 +408,13 @@ function () {
   _createClass(Trail, [{
     key: "render",
     value: function render(svg, ball) {
-      this.balls.push(new TrailBall(ball.x, ball.y, ball.radius, 1));
+      //Creates new TrailBall at location of ball
+      this.balls.push(new TrailBall(ball.x, ball.y, ball.radius));
 
       if (this.balls.length > this.length) {
-        this.balls.shift();
+        this.balls.shift(); //shift removes first element
       }
 
-      console.log(this.balls.length);
       this.shrinkBalls(this.balls);
 
       for (var i = 0; i < this.length; i++) {
@@ -435,7 +431,6 @@ function () {
       circle.setAttributeNS(null, "cx", ball.x);
       circle.setAttributeNS(null, "cy", ball.y);
       circle.setAttributeNS(null, "fill", "red");
-      circle.setAttributeNS(null, "fill-opacity", ball.opacity);
       svg.appendChild(circle);
     } //Makes the trail shorter at the end
 
@@ -447,26 +442,25 @@ function () {
 
         if (balls[j].radius < 0) {
           balls[j].radius = 0;
-          balls[j].opacity = 0.01;
         }
       }
     }
   }]);
 
   return Trail;
-}();
+}(); //Was creating Balls from ball class but they hurt the framerate too much and had velocities
+
 
 exports.default = Trail;
 
-var TrailBall = function TrailBall(x, y, radius, opacity) {
+var TrailBall = function TrailBall(x, y, radius) {
   _classCallCheck(this, TrailBall);
 
   this.x = x;
   this.y = y;
   this.radius = radius;
-  this.opacity = opacity;
 };
-},{"../settings":"src/settings.js","./ball":"src/partials/ball.js"}],"src/partials/ball.js":[function(require,module,exports) {
+},{"../settings":"src/settings.js"}],"src/partials/ball.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -499,11 +493,13 @@ function () {
     this.boardHeight = boardHeight;
     this.velocity = velocity;
     this.speed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[1] * this.velocity[1]);
-    console.log("Start Ball Speed: ", this.speed);
+    this.startingSpeed = this.speed;
     this.theta = 0;
     this.xFlipped = 1;
     this.yFlipped = 1;
     this.spinSpeed = 0;
+    this.accelerationSpeed = 0.1; //Pass in the number of circles used to make the trail
+
     this.trail = new _trail.default(30);
     this.ping = new Audio(_smack.default);
     this.reset();
@@ -544,6 +540,11 @@ function () {
       this.y += this.velocity[1];
     }
   }, {
+    key: "accelerate",
+    value: function accelerate() {
+      this.speed += this.accelerationSpeed;
+    }
+  }, {
     key: "wallCollision",
     value: function wallCollision() {
       var hitTop = this.y - this.radius <= 0;
@@ -556,7 +557,7 @@ function () {
   }, {
     key: "paddleCollision",
     value: function paddleCollision(player1, player2) {
-      // collision detection for right paddle
+      //Collision detection for right paddle
       if (this.x + this.radius >= player2.x && this.x + this.radius <= player2.x + player2.width) {
         if (this.y >= player2.y && this.y <= player2.y + player2.height) {
           this.theta += Math.PI;
@@ -564,7 +565,7 @@ function () {
           this.ping.play();
           this.applySpin(player2.speed);
         }
-      } // moving left
+      } //Collision detection for left paddle
 
 
       if (this.x - this.radius <= player1.x + player1.width && this.x - this.radius >= player1.x && this.y >= player1.y && this.y <= player1.y + player1.height) {
@@ -597,10 +598,14 @@ function () {
     value: function spin() {
       this.theta += this.spinSpeed * 0.001;
       this.applyRotationalFrictionToZero();
-    }
+    } //Resets ball to the center
+
   }, {
     key: "reset",
     value: function reset() {
+      this.theta = Math.random() * Math.PI;
+      this.speed = this.startingSpeed;
+      this.spinSpeed = 0;
       this.x = this.boardLength / 2;
       this.y = this.boardHeight / 2;
     }
@@ -692,7 +697,6 @@ var paddlePadding = 30;
 var boardClassName = "board";
 var ballRadius = 8;
 var ballVelocity = [5, 2];
-var ballClassName = "ball";
 var p1Up = _settings.KEYS.a;
 var p1Down = _settings.KEYS.z;
 var p2Up = _settings.KEYS.up;
@@ -802,7 +806,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54029" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51530" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
