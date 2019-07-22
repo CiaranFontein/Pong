@@ -278,7 +278,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var paddleAcceleration = 0.1;
+var paddleAcceleration = 0.5;
 
 var Paddle =
 /*#__PURE__*/
@@ -297,6 +297,8 @@ function () {
     this.score = 0;
     this.upKey = upKey;
     this.downKey = downKey;
+    this.againstTopEdge = false;
+    this.againstBotEdge = false;
     this.keyState = {};
     document.addEventListener("keydown", function (event) {
       _this.keyState[event.key] = true;
@@ -311,19 +313,19 @@ function () {
     value: function render(svg) {
       this.update();
 
-      if (this.keyState[_settings.KEYS.a] && this.upKey === _settings.KEYS.a) {
+      if (this.keyState[_settings.KEYS.a] && this.upKey === _settings.KEYS.a && !this.againstTopEdge) {
         this.move(-paddleAcceleration);
       }
 
-      if (this.keyState[_settings.KEYS.z] && this.downKey === _settings.KEYS.z) {
+      if (this.keyState[_settings.KEYS.up] && this.upKey === _settings.KEYS.up && !this.againstTopEdge) {
+        this.move(-paddleAcceleration);
+      }
+
+      if (this.keyState[_settings.KEYS.z] && this.downKey === _settings.KEYS.z && !this.againstBotEdge) {
         this.move(paddleAcceleration);
       }
 
-      if (this.keyState[_settings.KEYS.up] && this.upKey === _settings.KEYS.up) {
-        this.move(-paddleAcceleration);
-      }
-
-      if (this.keyState[_settings.KEYS.down] && this.downKey === _settings.KEYS.down) {
+      if (this.keyState[_settings.KEYS.down] && this.downKey === _settings.KEYS.down && !this.againstBotEdge) {
         this.move(paddleAcceleration);
       }
 
@@ -346,9 +348,15 @@ function () {
   }, {
     key: "update",
     value: function update() {
-      if ((this.y += this.speed) <= 0 || (this.y += this.speed) >= this.boardHeight) {
-        this.speed = 0;
+      if (this.y + this.speed <= 0) {
+        this.againstTopEdge = true;
+        this.speed = -this.speed * 0.5;
+      } else if (this.y + this.speed >= this.boardHeight - this.height) {
+        this.againstBotEdge = true;
+        this.speed = -this.speed * 0.5;
       } else {
+        this.againstBotEdge = false;
+        this.againstTopEdge = false;
         this.y += this.speed;
       }
 
@@ -358,9 +366,9 @@ function () {
     key: "slowToZero",
     value: function slowToZero() {
       if (this.speed > 0) {
-        this.speed -= 0.02;
+        this.speed -= 0.05;
       } else if (this.speed < 0) {
-        this.speed += 0.02;
+        this.speed += 0.05;
       }
     }
   }]);
@@ -369,7 +377,246 @@ function () {
 }();
 
 exports.default = Paddle;
-},{"../settings":"src/settings.js"}],"src/partials/ball.js":[function(require,module,exports) {
+},{"../settings":"src/settings.js"}],"public/sounds/smack.ogg":[function(require,module,exports) {
+module.exports = "/smack.182e8114.ogg";
+},{}],"src/partials/trail.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _settings = require("../settings");
+
+var _ball = _interopRequireDefault(require("./ball"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Trail =
+/*#__PURE__*/
+function () {
+  function Trail(length) {
+    _classCallCheck(this, Trail);
+
+    this.length = length;
+    this.balls = [];
+  }
+
+  _createClass(Trail, [{
+    key: "render",
+    value: function render(svg, ball) {
+      this.balls.push(new TrailBall(ball.x, ball.y, ball.radius, 1));
+
+      if (this.balls.length > this.length) {
+        this.balls.shift();
+      }
+
+      console.log(this.balls.length);
+      this.shrinkBalls(this.balls);
+
+      for (var i = 0; i < this.length; i++) {
+        if (this.balls[i]) {
+          this.renderCircleOfTrail(svg, this.balls[i]);
+        }
+      }
+    }
+  }, {
+    key: "renderCircleOfTrail",
+    value: function renderCircleOfTrail(svg, ball) {
+      var circle = document.createElementNS(_settings.SVG_NS, "circle");
+      circle.setAttributeNS(null, "r", ball.radius);
+      circle.setAttributeNS(null, "cx", ball.x);
+      circle.setAttributeNS(null, "cy", ball.y);
+      circle.setAttributeNS(null, "fill", "red");
+      circle.setAttributeNS(null, "fill-opacity", ball.opacity);
+      svg.appendChild(circle);
+    } //Makes the trail shorter at the end
+
+  }, {
+    key: "shrinkBalls",
+    value: function shrinkBalls(balls) {
+      for (var j = balls.length - 1; j > 0; j--) {
+        balls[j].radius = j / this.length * 10;
+
+        if (balls[j].radius < 0) {
+          balls[j].radius = 0;
+          balls[j].opacity = 0.01;
+        }
+      }
+    }
+  }]);
+
+  return Trail;
+}();
+
+exports.default = Trail;
+
+var TrailBall = function TrailBall(x, y, radius, opacity) {
+  _classCallCheck(this, TrailBall);
+
+  this.x = x;
+  this.y = y;
+  this.radius = radius;
+  this.opacity = opacity;
+};
+},{"../settings":"src/settings.js","./ball":"src/partials/ball.js"}],"src/partials/ball.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _settings = require("../settings");
+
+var _smack = _interopRequireDefault(require("../../public/sounds/smack.ogg"));
+
+var _trail = _interopRequireDefault(require("./trail"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Ball =
+/*#__PURE__*/
+function () {
+  function Ball(radius, boardLength, boardHeight, velocity) {
+    _classCallCheck(this, Ball);
+
+    this.radius = radius;
+    this.boardLength = boardLength;
+    this.boardHeight = boardHeight;
+    this.velocity = velocity;
+    this.speed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[1] * this.velocity[1]);
+    console.log("Start Ball Speed: ", this.speed);
+    this.theta = 0;
+    this.xFlipped = 1;
+    this.yFlipped = 1;
+    this.spinSpeed = 0;
+    this.trail = new _trail.default(30);
+    this.ping = new Audio(_smack.default);
+    this.reset();
+  }
+
+  _createClass(Ball, [{
+    key: "render",
+    value: function render(svg, paddle1, paddle2) {
+      this.trail.render(svg, this);
+      this.wallCollision();
+      this.move();
+      this.paddleCollision(paddle1, paddle2);
+      var circle = document.createElementNS(_settings.SVG_NS, "circle");
+      circle.setAttributeNS(null, "class", this.className);
+      circle.setAttributeNS(null, "r", this.radius);
+      circle.setAttributeNS(null, "cx", this.x);
+      circle.setAttributeNS(null, "cy", this.y);
+      circle.setAttributeNS(null, "fill", "white");
+      svg.appendChild(circle);
+      var rightGoal = this.x + this.radius >= this.boardLength;
+      var leftGoal = this.x - this.radius <= 0;
+
+      if (rightGoal) {
+        this.goal(paddle1);
+        this.direction = 1;
+      } else if (leftGoal) {
+        this.goal(paddle2);
+        this.direction = -1;
+      }
+    }
+  }, {
+    key: "move",
+    value: function move() {
+      this.spin();
+      this.velocity[0] = this.speed * this.xFlipped * Math.cos(this.theta);
+      this.velocity[1] = this.speed * this.yFlipped * Math.sin(this.theta);
+      this.x += this.velocity[0];
+      this.y += this.velocity[1];
+    }
+  }, {
+    key: "wallCollision",
+    value: function wallCollision() {
+      var hitTop = this.y - this.radius <= 0;
+      var hitBottom = this.y + this.radius >= this.boardHeight;
+
+      if (hitTop || hitBottom) {
+        this.yFlipped = -this.yFlipped;
+      }
+    }
+  }, {
+    key: "paddleCollision",
+    value: function paddleCollision(player1, player2) {
+      // collision detection for right paddle
+      if (this.x + this.radius >= player2.x && this.x + this.radius <= player2.x + player2.width) {
+        if (this.y >= player2.y && this.y <= player2.y + player2.height) {
+          this.theta += Math.PI;
+          this.yFlipped = -this.yFlipped;
+          this.ping.play();
+          this.applySpin(player2.speed);
+        }
+      } // moving left
+
+
+      if (this.x - this.radius <= player1.x + player1.width && this.x - this.radius >= player1.x && this.y >= player1.y && this.y <= player1.y + player1.height) {
+        this.theta += Math.PI / 2;
+        this.yFlipped = -this.yFlipped;
+        this.ping.play();
+        this.applySpin(player1.speed);
+      }
+    } //Slowly reduces spin speed to simulate air friction on the rotation
+
+  }, {
+    key: "applyRotationalFrictionToZero",
+    value: function applyRotationalFrictionToZero() {
+      if (this.spinSpeed > 0) {
+        this.spinSpeed -= 0.1;
+      } else if (this.spinSpeed < 0) {
+        this.spinSpeed += 0.1;
+      }
+    } //Adds spinSpeed to the ball based on speed of paddle on impact
+
+  }, {
+    key: "applySpin",
+    value: function applySpin(paddleSpeed) {
+      console.log("Applying Spin: " + this.paddleSpeed);
+      this.spinSpeed += paddleSpeed;
+    } //Changes the direction the ball is going based on the spinSpeed
+
+  }, {
+    key: "spin",
+    value: function spin() {
+      this.theta += this.spinSpeed * 0.001;
+      this.applyRotationalFrictionToZero();
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      this.x = this.boardLength / 2;
+      this.y = this.boardHeight / 2;
+    }
+  }, {
+    key: "goal",
+    value: function goal(player) {
+      this.reset();
+      player.score++;
+    }
+  }]);
+
+  return Ball;
+}();
+
+exports.default = Ball;
+},{"../settings":"src/settings.js","../../public/sounds/smack.ogg":"public/sounds/smack.ogg","./trail":"src/partials/trail.js"}],"src/partials/score.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -385,134 +632,34 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var Ball =
+var Score =
 /*#__PURE__*/
 function () {
-  function Ball(radius, boardLength, boardHeight, className, velocity) {
-    _classCallCheck(this, Ball);
+  function Score(x, y, size) {
+    _classCallCheck(this, Score);
 
-    this.radius = radius;
-    this.boardLength = boardLength;
-    this.boardHeight = boardHeight;
-    this.className = className;
-    this.x = boardLength / 2;
-    this.y = boardHeight / 2;
-    this.velocity = velocity;
-    this.speed = Math.sqrt(Math.exp(this.velocity[0], 2) + Math.exp(this.velocity[1], 2));
-    console.log("Start Ball Speed: ", this.speed);
-    this.theta = 0;
-    this.crazySpinTheta = 0;
+    this.x = x;
+    this.y = y;
+    this.size = size;
   }
 
-  _createClass(Ball, [{
+  _createClass(Score, [{
     key: "render",
-    value: function render(svg, paddle1, paddle2) {
-      this.wallCollision();
-      this.move();
-      this.paddleCollision(paddle1, paddle2);
-      var circle = document.createElementNS(_settings.SVG_NS, "circle");
-      circle.setAttributeNS(null, "class", this.className);
-      circle.setAttributeNS(null, "r", this.radius);
-      circle.setAttributeNS(null, "cx", this.x);
-      circle.setAttributeNS(null, "cy", this.y);
-      circle.setAttributeNS(null, "fill", "white");
-      svg.appendChild(circle);
-    }
-  }, {
-    key: "move",
-    value: function move() {
-      this.x += this.velocity[0];
-      this.y += this.velocity[1];
-    }
-  }, {
-    key: "wallCollision",
-    value: function wallCollision() {
-      var hitLeft = this.x - this.radius <= 0;
-      var hitRight = this.x + this.radius >= this.boardLength;
-      var hitTop = this.y - this.radius <= 0;
-      var hitBottom = this.y + this.radius >= this.boardHeight;
-
-      if (hitLeft || hitRight) {
-        this.velocity[0] = -this.velocity[0];
-      }
-
-      if (hitTop || hitBottom) {
-        this.velocity[1] = -this.velocity[1];
-      }
-    }
-  }, {
-    key: "paddleCollision",
-    value: function paddleCollision(player1, player2) {
-      // moving right
-      // console.log("player1", player1);
-      // console.log("player2", player2);
-      if (this.velocity[0] > 0) {
-        // collision detection for right paddle
-        if (this.x + this.radius >= player2.x && // right edge of the ball is >= left edge of the paddle
-        this.x + this.radius <= player2.x + player2.width && // right edge of the ball is <= right edge of the paddle
-        this.y >= player2.y && this.y <= player2.y + player2.height // ball Y is >= paddle top Y and <= paddle bottom Y
-        ) {
-            // if true then there's a collision
-            this.velocity[0] = -this.velocity[0];
-            this.applySpin(player2.speed);
-          }
-      } else {
-        // moving left
-        if (this.x - this.radius <= player1.x + player1.width && this.x - this.radius >= player1.x && this.y >= player1.y && this.y <= player1.y + player1.height) {
-          this.velocity[0] = -this.velocity[0];
-          this.applySpin(player1.speed);
-        }
-      }
-    } //EXPERIMENTAL
-
-  }, {
-    key: "spinBounce",
-    value: function spinBounce() {
-      this.theta = -this.theta;
-      this.velocity[0] = this.speed * -Math.sin(this.theta);
-      this.velocity[1] = this.speed * -Math.cos(this.theta);
-    }
-  }, {
-    key: "applyRotationalFrictionToZero",
-    value: function applyRotationalFrictionToZero() {
-      if (this.theta > 0.05) {
-        this.theta -= 0.01;
-      } else if (this.theta < -0.05) {
-        this.theta += 0.01;
-      }
-    }
-  }, {
-    key: "applySpin",
-    value: function applySpin(paddleSpeed) {
-      console.log("Applying Spin: " + this.theta);
-      this.theta = paddleSpeed;
-    }
-  }, {
-    key: "spin",
-    value: function spin() {
-      this.velocity[0] = this.speed * Math.cos(this.theta);
-      this.velocity[1] = this.speed * Math.sin(this.theta);
-      this.applyRotationalFrictionToZero();
-    }
-  }, {
-    key: "crazySpin",
-    value: function crazySpin() {
-      this.velocity[0] += this.speed * Math.cos(this.crazySpinTheta);
-      this.velocity[1] += this.speed * Math.sin(this.crazySpinTheta);
-      this.crazySpinTheta -= 0.2;
-    }
-  }, {
-    key: "reset",
-    value: function reset() {
-      this.x = this.boardLength / 2;
-      this.y = this.boardHeight / 2;
+    value: function render(svg, score) {
+      var text = document.createElementNS(_settings.SVG_NS, "text");
+      text.setAttributeNS(null, "x", this.x);
+      text.setAttributeNS(null, "y", this.y);
+      text.setAttributeNS(null, "size", this.size);
+      text.setAttributeNS(null, "fill", "blue");
+      text.textContent = score;
+      svg.appendChild(text);
     }
   }]);
 
-  return Ball;
+  return Score;
 }();
 
-exports.default = Ball;
+exports.default = Score;
 },{"../settings":"src/settings.js"}],"src/partials/Game.js":[function(require,module,exports) {
 "use strict";
 
@@ -529,6 +676,8 @@ var _paddle = _interopRequireDefault(require("./paddle"));
 
 var _ball = _interopRequireDefault(require("./ball"));
 
+var _score = _interopRequireDefault(require("./score"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -537,12 +686,12 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var paddleHeight = 128;
+var paddleHeight = 80;
 var paddleWidth = 8;
 var paddlePadding = 30;
 var boardClassName = "board";
 var ballRadius = 8;
-var ballVelocity = [5, 3];
+var ballVelocity = [5, 2];
 var ballClassName = "ball";
 var p1Up = _settings.KEYS.a;
 var p1Down = _settings.KEYS.z;
@@ -560,6 +709,7 @@ function () {
     this.element = element;
     this.width = width;
     this.height = height;
+    this.direction = 1;
     var boardHeight = this.height;
     var boardLength = this.width;
     var paused = true;
@@ -567,7 +717,9 @@ function () {
     this.board = new _board.default(boardLength, boardHeight, boardClassName);
     this.paddle1 = new _paddle.default(boardHeight, paddleWidth, paddleHeight, paddlePadding, boardHeight / 2, p1Up, p1Down);
     this.paddle2 = new _paddle.default(boardHeight, paddleWidth, paddleHeight, boardLength - paddlePadding - paddleWidth / 2, boardHeight / 2, p2Up, p2Down);
-    this.ball = new _ball.default(ballRadius, boardLength, boardHeight, ballClassName, ballVelocity);
+    this.ball = new _ball.default(ballRadius, boardLength, boardHeight, ballVelocity);
+    this.score1 = new _score.default(this.width / 2 - 50, 30, 30);
+    this.score2 = new _score.default(this.width / 2 + 25, 30, 30);
     document.addEventListener("keydown", function (event) {
       switch (event.key) {
         case _settings.KEYS.spaceBar:
@@ -592,19 +744,11 @@ function () {
       svg.setAttributeNS(null, "viewBox", "0 0 ".concat(this.width, " ").concat(this.height));
       this.gameElement.appendChild(svg);
       this.board.render(svg);
+      this.score1.render(svg, this.paddle1.score);
+      this.score2.render(svg, this.paddle2.score);
       this.paddle1.render(svg);
       this.paddle2.render(svg);
       this.ball.render(svg, this.paddle1, this.paddle2);
-    }
-  }, {
-    key: "checkPaddleCollision",
-    value: function checkPaddleCollision(object1, object2) {
-      if (Math.abs(object1.x - object2.x) <= object1.radius + object2.width / 2) {
-        if (Math.abs(object1.y - object2.y) < object2.height / 2 + object1.radius && Math.abs(object1.y - object2.y) < object2.height / 2 + object1.radius) {
-          object1.applySpin(object2.speed);
-          this.ball.bounce();
-        }
-      }
     }
   }]);
 
@@ -612,7 +756,7 @@ function () {
 }();
 
 exports.default = Game;
-},{"./board":"src/partials/board.js","../settings":"src/settings.js","./paddle":"src/partials/paddle.js","./ball":"src/partials/ball.js"}],"src/index.js":[function(require,module,exports) {
+},{"./board":"src/partials/board.js","../settings":"src/settings.js","./paddle":"src/partials/paddle.js","./ball":"src/partials/ball.js","./score":"src/partials/score.js"}],"src/index.js":[function(require,module,exports) {
 "use strict";
 
 require("./styles/game.css");
@@ -658,7 +802,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63869" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54029" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -2,14 +2,15 @@ import Board from "./board";
 import { SVG_NS } from "../settings";
 import Paddle from "./paddle";
 import Ball from "./ball";
+import Score from "./score";
 import { KEYS } from "../settings";
 
-const paddleHeight = 128;
+const paddleHeight = 80;
 const paddleWidth = 8;
 const paddlePadding = 30;
 const boardClassName = "board";
 const ballRadius = 8;
-const ballVelocity = [5, 3];
+const ballVelocity = [5, 2];
 const ballClassName = "ball";
 const p1Up = KEYS.a;
 const p1Down = KEYS.z;
@@ -21,7 +22,7 @@ export default class Game {
     this.element = element;
     this.width = width;
     this.height = height;
-
+    this.direction = 1;
     const boardHeight = this.height;
     const boardLength = this.width;
 
@@ -50,13 +51,10 @@ export default class Game {
       p2Down
     );
 
-    this.ball = new Ball(
-      ballRadius,
-      boardLength,
-      boardHeight,
-      ballClassName,
-      ballVelocity
-    );
+    this.ball = new Ball(ballRadius, boardLength, boardHeight, ballVelocity);
+
+    this.score1 = new Score(this.width / 2 - 50, 30, 30);
+    this.score2 = new Score(this.width / 2 + 25, 30, 30);
 
     document.addEventListener("keydown", event => {
       switch (event.key) {
@@ -79,20 +77,10 @@ export default class Game {
     this.gameElement.appendChild(svg);
 
     this.board.render(svg);
+    this.score1.render(svg, this.paddle1.score);
+    this.score2.render(svg, this.paddle2.score);
     this.paddle1.render(svg);
     this.paddle2.render(svg);
     this.ball.render(svg, this.paddle1, this.paddle2);
-  }
-
-  checkPaddleCollision(object1, object2) {
-    if (Math.abs(object1.x - object2.x) <= object1.radius + object2.width / 2) {
-      if (
-        Math.abs(object1.y - object2.y) < object2.height / 2 + object1.radius &&
-        Math.abs(object1.y - object2.y) < object2.height / 2 + object1.radius
-      ) {
-        object1.applySpin(object2.speed);
-        this.ball.bounce();
-      }
-    }
   }
 }

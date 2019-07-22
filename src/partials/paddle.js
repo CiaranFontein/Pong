@@ -1,6 +1,6 @@
 import { SVG_NS, KEYS } from "../settings";
 
-let paddleAcceleration = 0.1;
+let paddleAcceleration = 0.5;
 
 export default class Paddle {
   constructor(boardHeight, width, height, x, y, upKey, downKey) {
@@ -13,6 +13,8 @@ export default class Paddle {
     this.score = 0;
     this.upKey = upKey;
     this.downKey = downKey;
+    this.againstTopEdge = false;
+    this.againstBotEdge = false;
 
     this.keyState = {};
 
@@ -27,17 +29,34 @@ export default class Paddle {
 
   render(svg) {
     this.update();
-
-    if (this.keyState[KEYS.a] && this.upKey === KEYS.a) {
+    if (
+      this.keyState[KEYS.a] &&
+      this.upKey === KEYS.a &&
+      !this.againstTopEdge
+    ) {
       this.move(-paddleAcceleration);
     }
-    if (this.keyState[KEYS.z] && this.downKey === KEYS.z) {
+    if (
+      this.keyState[KEYS.up] &&
+      this.upKey === KEYS.up &&
+      !this.againstTopEdge
+    ) {
+      this.move(-paddleAcceleration);
+    }
+
+    if (
+      this.keyState[KEYS.z] &&
+      this.downKey === KEYS.z &&
+      !this.againstBotEdge
+    ) {
       this.move(paddleAcceleration);
     }
-    if (this.keyState[KEYS.up] && this.upKey === KEYS.up) {
-      this.move(-paddleAcceleration);
-    }
-    if (this.keyState[KEYS.down] && this.downKey === KEYS.down) {
+
+    if (
+      this.keyState[KEYS.down] &&
+      this.downKey === KEYS.down &&
+      !this.againstBotEdge
+    ) {
       this.move(paddleAcceleration);
     }
 
@@ -59,12 +78,15 @@ export default class Paddle {
   }
 
   update() {
-    if (
-      (this.y += this.speed) <= 0 ||
-      (this.y += this.speed) >= this.boardHeight
-    ) {
-      this.speed = 0;
+    if (this.y + this.speed <= 0) {
+      this.againstTopEdge = true;
+      this.speed = -this.speed * 0.5;
+    } else if (this.y + this.speed >= this.boardHeight - this.height) {
+      this.againstBotEdge = true;
+      this.speed = -this.speed * 0.5;
     } else {
+      this.againstBotEdge = false;
+      this.againstTopEdge = false;
       this.y += this.speed;
     }
     this.slowToZero();
@@ -72,9 +94,9 @@ export default class Paddle {
 
   slowToZero() {
     if (this.speed > 0) {
-      this.speed -= 0.02;
+      this.speed -= 0.05;
     } else if (this.speed < 0) {
-      this.speed += 0.02;
+      this.speed += 0.05;
     }
   }
 }

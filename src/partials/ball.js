@@ -1,23 +1,29 @@
 import { SVG_NS } from "../settings";
+import pingSound from "../../public/sounds/smack.ogg";
+import Trail from "./trail";
 
 export default class Ball {
-  constructor(radius, boardLength, boardHeight, className, velocity) {
+  constructor(radius, boardLength, boardHeight, velocity) {
     this.radius = radius;
     this.boardLength = boardLength;
     this.boardHeight = boardHeight;
-    this.className = className;
-    this.x = boardLength / 2;
-    this.y = boardHeight / 2;
     this.velocity = velocity;
     this.speed = Math.sqrt(
-      Math.exp(this.velocity[0], 2) + Math.exp(this.velocity[1], 2)
+      this.velocity[0] * this.velocity[0] + this.velocity[1] * this.velocity[1]
     );
     console.log("Start Ball Speed: ", this.speed);
     this.theta = 0;
-    this.crazySpinTheta = 0;
+    this.xFlipped = 1;
+    this.yFlipped = 1;
+
+    this.spinSpeed = 0;
+    this.trail = new Trail(30);
+    this.ping = new Audio(pingSound);
+    this.reset();
   }
 
   render(svg, paddle1, paddle2) {
+    this.trail.render(svg, this);
     this.wallCollision();
     this.move();
     this.paddleCollision(paddle1, paddle2);
@@ -30,90 +36,90 @@ export default class Ball {
     circle.setAttributeNS(null, "fill", "white");
 
     svg.appendChild(circle);
+
+    const rightGoal = this.x + this.radius >= this.boardLength;
+    const leftGoal = this.x - this.radius <= 0;
+
+    if (rightGoal) {
+      this.goal(paddle1);
+      this.direction = 1;
+    } else if (leftGoal) {
+      this.goal(paddle2);
+      this.direction = -1;
+    }
   }
 
   move() {
+    this.spin();
+    this.velocity[0] = this.speed * this.xFlipped * Math.cos(this.theta);
+    this.velocity[1] = this.speed * this.yFlipped * Math.sin(this.theta);
     this.x += this.velocity[0];
     this.y += this.velocity[1];
   }
 
   wallCollision() {
-    const hitLeft = this.x - this.radius <= 0;
-    const hitRight = this.x + this.radius >= this.boardLength;
     const hitTop = this.y - this.radius <= 0;
     const hitBottom = this.y + this.radius >= this.boardHeight;
 
-    if (hitLeft || hitRight) {
-      this.velocity[0] = -this.velocity[0];
-    }
-
     if (hitTop || hitBottom) {
-      this.velocity[1] = -this.velocity[1];
+      this.yFlipped = -this.yFlipped;
     }
   }
 
   paddleCollision(player1, player2) {
-    // moving right
-    // console.log("player1", player1);
-    // console.log("player2", player2);
-    if (this.velocity[0] > 0) {
-      // collision detection for right paddle
-      if (
-        this.x + this.radius >= player2.x && // right edge of the ball is >= left edge of the paddle
-        this.x + this.radius <= player2.x + player2.width && // right edge of the ball is <= right edge of the paddle
-        (this.y >= player2.y && this.y <= player2.y + player2.height) // ball Y is >= paddle top Y and <= paddle bottom Y
-      ) {
-        // if true then there's a collision
-        this.velocity[0] = -this.velocity[0];
+    // collision detection for right paddle
+    if (
+      this.x + this.radius >= player2.x &&
+      this.x + this.radius <= player2.x + player2.width
+    ) {
+      if (this.y >= player2.y && this.y <= player2.y + player2.height) {
+        this.theta += Math.PI;
+        this.yFlipped = -this.yFlipped;
+        this.ping.play();
         this.applySpin(player2.speed);
       }
-    } else {
-      // moving left
-      if (
-        this.x - this.radius <= player1.x + player1.width &&
-        this.x - this.radius >= player1.x &&
-        (this.y >= player1.y && this.y <= player1.y + player1.height)
-      ) {
-        this.velocity[0] = -this.velocity[0];
-        this.applySpin(player1.speed);
-      }
+    }
+    // moving left
+    if (
+      this.x - this.radius <= player1.x + player1.width &&
+      this.x - this.radius >= player1.x &&
+      (this.y >= player1.y && this.y <= player1.y + player1.height)
+    ) {
+      this.theta += Math.PI / 2;
+      this.yFlipped = -this.yFlipped;
+      this.ping.play();
+      this.applySpin(player1.speed);
     }
   }
 
-  //EXPERIMENTAL
-  spinBounce() {
-    this.theta = -this.theta;
-    this.velocity[0] = this.speed * -Math.sin(this.theta);
-    this.velocity[1] = this.speed * -Math.cos(this.theta);
-  }
-
+  //Slowly reduces spin speed to simulate air friction on the rotation
   applyRotationalFrictionToZero() {
-    if (this.theta > 0.05) {
-      this.theta -= 0.01;
-    } else if (this.theta < -0.05) {
-      this.theta += 0.01;
+    if (this.spinSpeed > 0) {
+      this.spinSpeed -= 0.1;
+    } else if (this.spinSpeed < 0) {
+      this.spinSpeed += 0.1;
     }
   }
 
+  //Adds spinSpeed to the ball based on speed of paddle on impact
   applySpin(paddleSpeed) {
-    console.log("Applying Spin: " + this.theta);
-    this.theta = paddleSpeed;
+    console.log("Applying Spin: " + this.paddleSpeed);
+    this.spinSpeed += paddleSpeed;
   }
 
+  //Changes the direction the ball is going based on the spinSpeed
   spin() {
-    this.velocity[0] = this.speed * Math.cos(this.theta);
-    this.velocity[1] = this.speed * Math.sin(this.theta);
+    this.theta += this.spinSpeed * 0.001;
     this.applyRotationalFrictionToZero();
-  }
-
-  crazySpin() {
-    this.velocity[0] += this.speed * Math.cos(this.crazySpinTheta);
-    this.velocity[1] += this.speed * Math.sin(this.crazySpinTheta);
-    this.crazySpinTheta -= 0.2;
   }
 
   reset() {
     this.x = this.boardLength / 2;
     this.y = this.boardHeight / 2;
+  }
+
+  goal(player) {
+    this.reset();
+    player.score++;
   }
 }
