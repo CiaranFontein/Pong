@@ -1,6 +1,7 @@
 # Curvy Pong with Ball Trail & Smooth Paddles
 
 A starter project for a basic pong game using SVGs.
+![](https://github.com/CiaranFontein/Pong/blob/master/screenshots/pong.gif)
 
 ## Stretch Goals
 
